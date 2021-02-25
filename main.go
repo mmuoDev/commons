@@ -1,6 +1,8 @@
 package main
 
 import (
+
+	// "fmt"
 	"log"
 	"os"
 
@@ -9,17 +11,27 @@ import (
 	// "fmt"
 	// "log"
 	// "os"
-	// "go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Partner struct {
-	ID      string
-	Name    string
-	Address string
+	ID              string `bson:"id"`
+	Name            string `bson:"name"`
+	Address         string `bson:"address"`
+	MultitenancyKey string `bson:"multitenancykey"`
 }
 
 func main() {
 	//port := "9000"
+	//mongo
+	// os.Setenv("MONGO_URL", "mongodb://localhost:27017")
+	// os.Setenv("MONGO_DB_NAME", "esusu")
+	// provide, err := mongo.NewConfigFromEnvVars().ToProvider(context.Background())
+	// if err != nil {
+	// 	log.Fatal("unable to connect mongo")
+	// }
+	// log.Println("connected to DB")
+	// col := mongo.NewCollection(provide, "partners")
+
 	os.Setenv("MYSQL_USERNAME", "root")
 	os.Setenv("MYSQL_PASSWORD", "@Password12")
 	os.Setenv("MYSQL_HOST", "127.0.0.1:3306")
@@ -29,59 +41,15 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// query := "CREATE TABLE IF NOT EXISTS product(product_id int primary key auto_increment, product_name text, product_price int, created_at datetime default CURRENT_TIMESTAMP, updated_at datetime default CURRENT_TIMESTAMP)"
-
-	// err1 := provideDB.Create(query)
-	// if err1 != nil {
-	// 	log.Fatal(err1)
-	// }
-	// log.Println("created!")
-
-	student := map[string]interface{}{"product_name": "door", "product_price": 5000}
-
-	count, err := provideDB.Insert("product", student)
+	var params []interface{}
+	slice1 := append(params, 2)
+	// price := "product_name"
+	// prdtID := "product_id"
+	query := "DELETE FROM product WHERE product_id = ?"
+	err = provideDB.Update(query, slice1)
 	if err != nil {
-		log.Fatal(err)
+		log.Println("unable to delete", err)
 	}
-	log.Println(count)
-	// log.Println(fmt.Sprintf("Starting server on port:%s", port))
 
-	//ash := Partner{"12345", "Jon Rose", "Texas, US"}
-	// misty := Partner{"67890", "nnamdi kanu", "Enugu, Nigeria"}
-
-	// partners := []interface{}{ash, misty}
-
-	//var partner Partner
-	// col := mongo.NewCollection(provideDB, "cattle")
-	// count, err1 := col.CountDocuments(bson.D{{id: "12345"}})
-	// if err1 != nil {
-	// 	log.Fatal(err1)
-	// }
-	// log.Println(count)
-
-	// Set client options
-	// clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
-
-	// // Connect to MongoDB
-	// client, err := mongo.Connect(context.TODO(), clientOptions)
-
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// // Check the connection
-	// err = client.Ping(context.TODO(), nil)
-
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// fmt.Println("Connected to MongoDB!")
-
-	// collection := client.Database("test").Collection("trainers")
-
-	myMap := map[string]string{"name": "uche"}
-	for key, value := range myMap {
-		log.Println(key, value)
-	}
+	log.Println("updated")
 }

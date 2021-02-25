@@ -41,17 +41,17 @@ func (c *Collection) InsertMulti(doc []interface{}) (*mongo.InsertManyResult, er
 }
 
 //FindByID finds a document by ID (primary key)
-func (c *Collection) FindByID(ID string, r interface{})  error{
+func (c *Collection) FindByID(ID string, r interface{}) error {
 	filter := bson.D{{"id", ID}}
 	err := c.col.FindOne(context.Background(), filter).Decode(r)
-	if  err != nil {
+	if err != nil {
 		return errors.Wrap(err, "Unable to find entity")
 	}
 	return err
 }
 
 //FindOne returns a document
-func (c *Collection) FindOne (filter interface{}, r interface{}) error {
+func (c *Collection) FindOne(filter interface{}, r interface{}) error {
 	err := c.col.FindOne(context.Background(), filter).Decode(r)
 	if err != nil {
 		return errors.Wrap(err, "unable to find entity")
@@ -60,7 +60,7 @@ func (c *Collection) FindOne (filter interface{}, r interface{}) error {
 }
 
 //FindMulti returns all document based on criteria
-func (c *Collection) FindMulti (filter interface{}, onEach func(c *mongo.Cursor) error) error{
+func (c *Collection) FindMulti(filter interface{}, onEach func(c *mongo.Cursor) error) error {
 	findOptions := options.Find()
 	ctx := context.Background()
 	var cur *mongo.Cursor
@@ -73,7 +73,7 @@ func (c *Collection) FindMulti (filter interface{}, onEach func(c *mongo.Cursor)
 	}
 
 	if err != nil {
-		return errors.Wrap(err, "unable to find documents") 
+		return errors.Wrap(err, "unable to find documents")
 	}
 	defer cur.Close(ctx)
 	for cur.Next(ctx) {
@@ -109,8 +109,18 @@ func (c *Collection) Replace(ID string, replacement interface{}) error {
 	return err
 }
 
+//Update updates an existing document in the database
+func (c *Collection) Update(ID string, changes interface{}) error {
+	update := bson.D{
+		{"$set", changes},
+	}
+	filter := bson.D{{"id", string(ID)}}
+	_, err := c.col.UpdateOne(context.Background(), filter, update)
+	return err
+}
+
 //CountDocuments returns a count of all documents
-func (c *Collection) CountDocuments (filter interface{}) (int64, error) {
+func (c *Collection) CountDocuments(filter interface{}) (int64, error) {
 	count, err := c.col.CountDocuments(context.Background(), filter)
 	if err != nil {
 		return 0, err
@@ -137,8 +147,3 @@ func (c *Collection) DeleteMany(filter interface{}) error {
 	}
 	return nil
 }
-
-
-
-
-
