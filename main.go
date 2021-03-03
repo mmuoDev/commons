@@ -3,10 +3,10 @@ package main
 import (
 
 	// "fmt"
-	"log"
-	"os"
 
-	"github.com/mmuoDev/commons/mysql"
+	"net/http"
+
+	"github.com/mmuoDev/commons/httputils"
 	// "context"
 	// "fmt"
 	// "log"
@@ -32,24 +32,6 @@ func main() {
 	// log.Println("connected to DB")
 	// col := mongo.NewCollection(provide, "partners")
 
-	os.Setenv("MYSQL_USERNAME", "root")
-	os.Setenv("MYSQL_PASSWORD", "@Password12")
-	os.Setenv("MYSQL_HOST", "127.0.0.1:3306")
-	os.Setenv("MYSQL_DB_NAME", "pangaea")
-	provideDB, err := mysql.NewConfigFromEnvVars().ToProvider()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var params []interface{}
-	slice1 := append(params, 2)
-	// price := "product_name"
-	// prdtID := "product_id"
-	query := "DELETE FROM product WHERE product_id = ?"
-	err = provideDB.Update(query, slice1)
-	if err != nil {
-		log.Println("unable to delete", err)
-	}
-
-	log.Println("updated")
+	var w http.ResponseWriter
+	httputils.Get("https://jsonplaceholder.typicode.com/todos/1", w)
 }
