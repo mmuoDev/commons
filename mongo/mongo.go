@@ -111,12 +111,29 @@ func (c *Collection) Replace(ID string, replacement interface{}) error {
 
 //Update updates an existing document in the database
 func (c *Collection) Update(ID string, changes interface{}) error {
+	// var doc *bson.D
+	// data, err1 := bson.Marshal(changes)
+	// if err1 != nil {
+	//     log.Fatal(err1)
+	// }
+	// _ = bson.Unmarshal(data, &doc)
+	// log.Println(doc)
+	// update := bson.D{
+	// 	{"$set", doc},
+	// }
+	filter := bson.D{{"id", string(ID)}}
 	update := bson.D{
 		{"$set", changes},
 	}
-	filter := bson.D{{"id", string(ID)}}
 	_, err := c.col.UpdateOne(context.Background(), filter, update)
 	return err
+}
+
+func (c *Collection) UpdateOneWithResult(ID string, changes interface{}, r interface{}) error {
+	if err := c.Update(ID, changes); err != nil {
+		return err
+	}
+	return c.FindByID(ID, r)
 }
 
 //CountDocuments returns a count of all documents
@@ -146,4 +163,14 @@ func (c *Collection) DeleteMany(filter interface{}) error {
 		return errors.Wrap(err, "Unable to delete")
 	}
 	return nil
+}
+
+//UpdateWithFilterOptions updates with filter conditions specified
+func (c *Collection) UpdateWithFilterOptions(filter interface{}, changes interface{}) error {
+	
+	update := bson.D{
+		{"$set", changes},
+	}
+	_, err := c.col.UpdateOne(context.Background(), filter, update)
+	return err
 }
