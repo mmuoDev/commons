@@ -86,20 +86,6 @@ func (c *Collection) FindMulti(filter interface{}, onEach func(c *mongo.Cursor) 
 		return errors.Wrap(err, "unable to find documents")
 	}
 	return nil
-	//sample
-	// var pp []Partner
-	// onEach := func(cur *mongo.Cursor) error {
-	// 	p := Partner{}
-	// 	if err := cur.Decode(&p); err != nil {
-	// 		return err
-	// 	}
-	// 	pp = append(pp, p)
-	// 	return nil
-	// }
-
-	// if err := col.FindMulti(filter, onEach); err != nil {
-	// 	return error
-	// }
 }
 
 //Replace replaces one document with another
@@ -111,16 +97,6 @@ func (c *Collection) Replace(ID string, replacement interface{}) error {
 
 //Update updates an existing document in the database
 func (c *Collection) Update(ID string, changes interface{}) error {
-	// var doc *bson.D
-	// data, err1 := bson.Marshal(changes)
-	// if err1 != nil {
-	//     log.Fatal(err1)
-	// }
-	// _ = bson.Unmarshal(data, &doc)
-	// log.Println(doc)
-	// update := bson.D{
-	// 	{"$set", doc},
-	// }
 	filter := bson.D{{"id", string(ID)}}
 	update := bson.D{
 		{"$set", changes},
@@ -167,7 +143,7 @@ func (c *Collection) DeleteMany(filter interface{}) error {
 
 //UpdateWithFilterOptions updates with filter conditions specified
 func (c *Collection) UpdateWithFilterOptions(filter interface{}, changes interface{}) error {
-	
+
 	update := bson.D{
 		{"$set", changes},
 	}
