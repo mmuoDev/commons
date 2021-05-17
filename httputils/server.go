@@ -1,7 +1,10 @@
 package httputils
 
 import (
+	"bytes"
 	"encoding/json"
+	"io"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/mmuoDev/commons/errors"
@@ -146,4 +149,11 @@ func GetQueryParam(key string, r *http.Request) string {
 		return ""
 	}
 	return param[0]
+}
+
+// FileToStruct reads a json file to a struct.. a reader for the file bytes is also returned
+func FileToStruct(filepath string, s interface{}) io.Reader {
+	bb, _ := ioutil.ReadFile(filepath)
+	json.Unmarshal(bb, s)
+	return bytes.NewReader(bb)
 }
