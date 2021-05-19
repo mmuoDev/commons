@@ -6,8 +6,12 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"reflect"
 
+	"github.com/mmuoDev/commons/time"
 	"github.com/mmuoDev/commons/errors"
+	pkgErr "github.com/pkg/errors"
+	"github.com/gorilla/schema"
 )
 
 //ServeJSON returns a JSON response for a http request
@@ -156,4 +160,48 @@ func FileToStruct(filepath string, s interface{}) io.Reader {
 	bb, _ := ioutil.ReadFile(filepath)
 	json.Unmarshal(bb, s)
 	return bytes.NewReader(bb)
+}
+
+var decoder = schema.NewDecoder()
+
+// GetQueryParams maps the query params from an http request into an interface
+func GetQueryParams(value interface{}, r *http.Request) error {
+	// decoder lookup for values on the json tag, instead of the default schema tag
+	decoder.SetAliasTag("json")
+
+	var globalErr error
+
+	// Decoder Register for custom type ISO8601
+	decoder.RegisterConverter(time.ISO8601{}, func(input string) reflect.Value {
+		ISOTime, errISO := time.NewISO8601(input)
+
+		if errISO != nil {
+			globalErr = pkgErr.Wrapf(errISO, "handler - invalid iso time provided")
+			return reflect.ValueOf(time.ISO8601{})
+		}
+
+		return reflect.ValueOf(ISOTime)
+	})
+
+	// Decoder Register for custom type Epoch
+	decoder.RegisterConverter(time.Epoch(0), func(input string) reflect.Value {
+		ISOTime, errISO := time.NewISO8601(input)
+
+		if errISO != nil {
+			globalErr = pkgErr.Wrapf(errISO, "handler - invalid iso time provided")
+			return reflect.ValueOf(time.ISO8601{}.ToEpoch())
+		}
+
+		return reflect.ValueOf(ISOTime.ToEpoch())
+	})
+
+	if err := decoder.Decode(value, r.URL.Query()); err != nil {
+		return pkgErr.Wrapf(err, "handler - failed to decode query params")
+	}
+
+	if globalErr != nil {
+		return globalErr
+	}
+
+	return nil
 }
