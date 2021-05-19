@@ -1,6 +1,8 @@
 package uuid
 
 import (
+	"fmt"
+
 	"github.com/google/uuid"
 )
 
@@ -13,7 +15,10 @@ func (v V4) Val() string {
 }
 
 // GenV4Func generates a v4 UUID string
-type GenV4Func func() 
+type GenV4Func func()
+
+//FromStringFunc creates a valid uuid V4 from a string
+type FromStringFunc func(uuid string) (V4, error)
 
 // GenV4 returns v4 UUID
 func GenV4() V4 {
@@ -24,4 +29,13 @@ func GenV4() V4 {
 func IsValidUUID(u string) bool {
 	_, err := uuid.Parse(u)
 	return err == nil
+}
+
+// GenFromString returns a uuid  from string
+func GenFromString(uuid string) (V4, error) {
+	ok := IsValidUUID(uuid)
+	if !ok {
+		return "", fmt.Errorf("Unable to generate UUID V4 from invalid value=%s", uuid)
+	}
+	return V4(uuid), nil
 }
